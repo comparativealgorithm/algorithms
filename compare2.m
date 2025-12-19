@@ -1,4 +1,4 @@
-[mt,failrate,c,mt1,failrate1,c1,mt2,failrate2,c2,B,M,cloud,B1,M1,cloud1,B2,M2,cloud2] = mian(200,400);
+[mt,failrate,c,mt1,failrate1,c1,mt2,failrate2,c2,B,M,cloud,B1,M1,cloud1,B2,M2,cloud2] = mian(240,400);
 function [mt,failrate,c,mt1,failrate1,c1,mt2,failrate2,c2,B,M,cloud,B1,M1,cloud1,B2,M2,cloud2] = mian(m,n)
     for i = m : 40 : n
         M=createM(20);
