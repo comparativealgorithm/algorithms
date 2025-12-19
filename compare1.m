@@ -39,19 +39,19 @@ function [mt,failrate,c,cloud] = result(B,M,cloud)
             for j = 1:size(B(i).edges,1)
                 pre = B(i).nodes(B(i).edges(j).pre+1).where ; 
                 suc = B(i).nodes(B(i).edges(j).suc+1).where;
-                if pre == 0 || suc == 0  %At least one of the two tasks must be on the vehicle.
-                    if pre ~= suc        %One on the edge server, the other on the vehicle
+                if pre == 0 || suc == 0   %At least one of the two tasks must be on the vehicle.
+                    if pre ~= suc         %One on the edge server, the other on the vehicle
                         if suc == 0       
                             temp=pre;
                             pre=suc;
                             suc=temp;
                         end
-                        if suc == size(M,2)+1  %On the car and cloud server respectively
+                        if suc == size(M,2)+1   %On the car and cloud server respectively
                             mt = mt + 2;
                         else                   %%On the vehicle and edge server respectively
-                            if abs(findcarpos(B,i,B(i).nodes(pre+1).ft) - M(suc).pos)>100  %%The edge server is not within the vehicle's communication range.
+                            if abs(findcarpos(B,i,B(i).nodes(pre+1).ft) - M(suc).pos)>100    %The edge server is not within the vehicle's communication range.
                                 mt=mt+2;
-                            elseif abs(findcarpos(B,i,B(i).nodes(pre+1).ft) - M(suc).pos)<=100 %%infra metas
+                            elseif abs(findcarpos(B,i,B(i).nodes(pre+1).ft) - M(suc).pos)<=100  %infra metas
                                 mt=mt+1;
                             end
                         end
@@ -96,11 +96,11 @@ function x=transenergy(i,j,B,M)
             if B(i).nodes(n+1).where == B(i).nodes(j+1).where   %%Two tasks on the same edge server or vehicle
                 x=x+0;
             end
-            if (B(i).nodes(n+1).where == 0 || B(i).nodes(j+1).where == 0) && B(i).nodes(n+1).where ~= B(i).nodes(j+1).where %%One is on the vehicle, the other is on the edge server
+            if (B(i).nodes(n+1).where == 0 || B(i).nodes(j+1).where == 0) && B(i).nodes(n+1).where ~= B(i).nodes(j+1).where %One is on the vehicle, the other is on the edge server
                 if B(i).nodes(n+1).where == 0
-                    if B(i).nodes(j+1).where == size(M,2)+1 %%Car to cloud server
+                    if B(i).nodes(j+1).where == size(M,2)+1 %Car to cloud server
                         x = x + B(i).edges(index).trans * (3 * 7.81 * 10^-9 + 10 * 80 * 10^-9);
-                    else         %%Car to edge server
+                    else         %Car to edge server
                         if abs(findcarpos(B,i,B(i).nodes(n+1).ft) - M(B(i).nodes(j+1).where).pos) > 100
                             x=x+B(i).edges(index).trans * (5 *17.77*10^-9 +3 * 7.81 * 10^-9);
                         else
@@ -108,7 +108,7 @@ function x=transenergy(i,j,B,M)
                         end
                     end
                 else
-                    if B(i).nodes(n+1).where == size(M,2)+1 %%Car to cloud server
+                    if B(i).nodes(n+1).where == size(M,2)+1 %Edge servers to cloud servers
                         x = x + B(i).edges(index).trans * (3 * 7.81 * 10^-9 + 10 * 80 * 10^-9);
                     else
                         if abs(findcarpos(B,i,B(i).nodes(n+1).ft) - M(B(i).nodes(n+1).where).pos) > 100
@@ -120,9 +120,9 @@ function x=transenergy(i,j,B,M)
                 end
             end
             if B(i).nodes(n+1).where ~= 0 && B(i).nodes(j+1).where ~= 0 && B(i).nodes(n+1).where ~= B(i).nodes(j+1).where
-                if B(i).nodes(n+1).where == size(M,2)+1 || B(i).nodes(j+1).where == size(M,2)+1  %%Edge servers to cloud servers
+                if B(i).nodes(n+1).where == size(M,2)+1 || B(i).nodes(j+1).where == size(M,2)+1   %%Edge servers to cloud servers
                     x=x+B(i).edges(index).trans * 10 * 80 * 10^-9;
-                else        %%Edge servers to Edge servers
+                else        %Edge servers to Edge servers
                     x=x+B(i).edges(index).trans * 5 * 17.77 * 10^-9;
                 end
             end
@@ -130,8 +130,8 @@ function x=transenergy(i,j,B,M)
     end
 end
 
-function [B,M,cloud]=Algorithm1(B,M,cloud)%Get application scheduling order
-    [x,Border]=sort([B.r]);     
+function [B,M,cloud]=Algorithm1(B,M,cloud)
+    [x,Border]=sort([B.r]);     %Get application scheduling order
     for i = Border   
         B1=B;
         M1=M;
@@ -147,18 +147,18 @@ function [B,M,cloud]=Algorithm1(B,M,cloud)%Get application scheduling order
     end
 end
 
-function [B,M,cloud]=Algorithm2(B,M,i,j,cloud)   %%Schedule the j-th task of the i-th application
+function [B,M,cloud]=Algorithm2(B,M,i,j,cloud)   %Schedule the j-th task of the i-th application
     B1=B;
     M1=M;
-    if j==size(B(i).nodes,1)-1     %%For dummy task termination, the scheduler is on the vehicle
+    if j==size(B(i).nodes,1)-1     %For dummy task termination, the scheduler is on the vehicle
         B(i).nodes(j+1).st=B(i).req;
         B(i).nodes(j+1).ft=B(i).req;
         B(i).nodes(j+1).statue=1;
         B(i).nodes(j+1).where=0;
         B(i).schedulelist=[i,j;B(i).schedulelist];
-    elseif j==0                    %%For dummy task start tasks, scheduling is performed on the vehicle
+    elseif j==0                    %For dummy task start tasks, scheduling is performed on the vehicle
         st=inf;
-        x=findcarpos(B,i,subdeadline(B,i,j)); %%Location of the vehicle
+        x=findcarpos(B,i,subdeadline(B,i,j));  %For dummy task start tasks, scheduling is performed on the vehicle
         suc=findsuc(B,i,j);
         for n = suc
             trans = B(i).edges([B(i).edges.pre] == j & [B(i).edges.suc] == n).trans;
@@ -172,15 +172,15 @@ function [B,M,cloud]=Algorithm2(B,M,i,j,cloud)   %%Schedule the j-th task of the
         B(i).nodes(j+1).statue=1;
         B(i).nodes(j+1).where=0;
         B(i).schedulelist=[i,j;B(i).schedulelist];
-    else                           %%For real tasks
+    else                          %For real tasks
         st = -inf;
-        t=subdeadline(B,i,j);
-        x=findcarpos(B,i,t);
+        t=subdeadline(B,i,j);      
+        x=findcarpos(B,i,t);       
         suc=findsuc(B,i,j);
-        if suc==size(B(i).nodes,1)-1  %%The children task is a virtual task   
+        if suc==size(B(i).nodes,1)-1  %%The children task is a virtual task  
             E1=[];
         else
-            E1=unique(findsucpos(B,i,j)); %%The children task is the one that needs to be scheduled
+            E1=unique(findsucpos(B,i,j));  %The children task is the one that needs to be scheduled
         end
         E2 = setdiff(findedgecar(M,x),E1);
         E3 = setdiff(setdiff(0:size(M,2),E2),E1);
@@ -307,17 +307,17 @@ function [st,ft,num,B,M,cloud]=Algorithm4(i,j,Ea,st,ft,num,B,M,cloud)
     num1=num;
     deadline = deadlineforM(i,j,Ea,B,M);
     if Ea == 0 
-        list = B(i).schedulelist;    %%forward scheduling table
+        list = B(i).schedulelist;     %%forward scheduling table
         scheduletime = B(i).nodes(j+1).comp / B(i).f;
     else
-        list = M(Ea).schedulelist;   %%forward scheduling table
+        list = M(Ea).schedulelist;    %%forward scheduling table
         scheduletime = B(i).nodes(j+1).comp / M(Ea).f;
     end
     timelist=[0,0];
     for h=1:size(list,1)
-        timelist = [timelist;B(list(h,1)).nodes(list(h,2)+1).st,B(list(h,1)).nodes(list(h,2)+1).ft]; 
+        timelist = [timelist;B(list(h,1)).nodes(list(h,2)+1).st,B(list(h,1)).nodes(list(h,2)+1).ft];
     end
-    for m = size(timelist,1):-1:2   %%m-1 is the subscript of the current task
+    for m = size(timelist,1):-1:2    %%m-1 is the subscript of the current task
         if timelist(m,2)<=deadline
             if timelist(m,2)-scheduletime>=timelist(m-1,2) && timelist(m,2)-scheduletime>=B(i).r
                 st = timelist(m,2)-scheduletime;
@@ -391,7 +391,7 @@ function [st,ft,num,B,M,cloud]=Algorithm4(i,j,Ea,st,ft,num,B,M,cloud)
     end
 end
 
-function t=deadlineforM(i,j,Ea,B,M)   %%Deadline for task on device Ma
+function t=deadlineforM(i,j,Ea,B,M)    %%Deadline for task on device Ma
     suc=findsuc(B,i,j);
     t=inf;
     for m = suc
@@ -407,7 +407,7 @@ function t=deadlineforM(i,j,Ea,B,M)   %%Deadline for task on device Ma
     end
 end
 
-function suc=findsuc(B,i,a)  %%Find the children task of task a in the i-th task graph
+function suc=findsuc(B,i,a)   %%Find the children task of task a in the i-th task graph
     suc=[];
     for j = 1 : size(B(i).edges,1)
         if a == B(i).edges(j).pre
@@ -416,7 +416,7 @@ function suc=findsuc(B,i,a)  %%Find the children task of task a in the i-th task
     end
 end
 
-function pre=findpre(B,i,a)  %%Find the parents task of task a in the i-th task graph
+function pre=findpre(B,i,a)  %Find the parents task of task a in the i-th task graph
     pre=[];
     for j = 1 : size(B(i).edges,1)
         if a == B(i).edges(j).suc
@@ -425,7 +425,7 @@ function pre=findpre(B,i,a)  %%Find the parents task of task a in the i-th task 
     end
 end
 
-function rank=rerank(B,i,a)   %%Calculate the rank for task a in task graph i
+function rank=rerank(B,i,a)  %Calculate the rank for task a in task graph i
     if a == size(B(i).nodes,1) - 1
         rank = B(i).req;
     else
@@ -441,7 +441,7 @@ function rank=rerank(B,i,a)   %%Calculate the rank for task a in task graph i
     end
 end
 
-function t=subdeadline(B,i,j)   %%Sub deadline
+function t=subdeadline(B,i,j)    %Sub deadline
     suc=findsuc(B,i,j);
     t=inf;
     for m = suc
@@ -453,8 +453,16 @@ function t=subdeadline(B,i,j)   %%Sub deadline
     end
 end
 
-function x=findcarpos(B,i,a)   %%Find the vehicle's position at the a-th second
-    x=B(i).xlabel+(a-B(i).r)*B(i).v;
+function x=findcarpos(B,i,a)   %Find the vehicle's position at the a-th second
+    mu=B(i).r;
+    sigma=10;
+    target_peak = B(i).v;
+    original_peak = 1 / (sigma * sqrt(2*pi));  
+    k = target_peak / original_peak;           
+    xlabel = linspace(0, 10, 1000);
+    f = @(xlabel) k * normpdf(xlabel, mu*rand()*2, sigma);  
+    x = integral(f, B(i).r, a)+B(i).xlabel; 
+%     x=B(i).xlabel+(a-B(i).r)*B(i).v;
     if x<0
         x=0;
     end
@@ -514,7 +522,7 @@ function sucpos=findsucpos(B,i,j)    %%Locate the children task
     end
 end
 
-function B=resort(B) %%sort
+function B=resort(B)  %%sort
     for i = 1:size(B,2)
         for j = size(B(i).nodes,1)-1 : -1 : 0
             B(i).nodes(j+1).rank = round(rerank(B,i,j),3);
@@ -546,7 +554,7 @@ function [edges,nodes]=creategraph()  %Create a graph
             n=n+1;
         end
     end
-     % Connect the second and third layers
+    % Connect the second and third layers
     for i = layer2
         a=randi(2);
         len=length(layer3);
@@ -566,7 +574,7 @@ function [edges,nodes]=creategraph()  %Create a graph
             n=n+1;
         end
     end
-   % Connect dummy tasks
+    % Connect dummy tasks
     for i=layer4
         edges(n) = struct("pre",i,'suc',11,'trans',(12+4*rand())*10^6/10);
         n=n+1;
@@ -590,7 +598,7 @@ function [edges,nodes]=creategraph()  %Create a graph
     nodes=nodes';
 end
 
-function B=createB(a)  %create user
+function B=createB(a)%create user
     list=linspace(1,1000,a+1);
     list=list(2:end);
     xlabel_matrix = reshape(list, a/10, []);
@@ -615,7 +623,7 @@ function B=createB(a)  %create user
         B(i).req=round(req,3);
     end
 end
-function M=createM(a) %Create edge servers
+function M=createM(a)  %Create edge servers
     p=[4000,4500,5000,5500,6000];
     c=[32,40.5,50,60.5,72];
     for i = 1: a
@@ -638,14 +646,14 @@ function [B,M,cloud] = COFE(B,M,cloud)
     B=findkeyroad(B);
     tolerace = 1e-10;
     for t = 0.001:0.001:30
-        for i = 1:size(B,2)   %%Schedule the first task
+        for i = 1:size(B,2)  %%Schedule the first task
             if abs(B(i).r - t) <=tolerace
                 [B,M]=schedule1(i,0,t,B,M);
             end
         end
         for i = 1 : size(B,2)
             for j = 0 : (size(B(i).nodes,1)-2)
-                if abs(t-B(i).nodes(j+1).ft)<tolerace   %%completion of task
+                if abs(t-B(i).nodes(j+1).ft)<tolerace  %%completion of task
                     if B(i).nodes(j+1).where == 0
                         B(i).schedulelist=B(i).schedulelist(2:end,:);
                     elseif B(i).nodes(j+1).where>0 && B(i).nodes(j+1).where<=size(M,2)
@@ -671,7 +679,7 @@ function [B,M] = schedule1(i,j,t,B,M,cloud)
         B(i).nodes(j+1).statue = 1;
         B(i).schedulelist = [B(i).schedulelist;i,j];
         B(i).worktime = B(i).r;
-    elseif j>=1 && j <= (size(B(i).nodes,1)-2)  %%real task
+    elseif j>=1 && j <= (size(B(i).nodes,1)-2)    %%real task
         ft = inf;
         pos=-1;
         for m = 0 : size(M,2)
@@ -681,7 +689,7 @@ function [B,M] = schedule1(i,j,t,B,M,cloud)
                 pos=m;
             end
         end
-        if pos == -1 && ft == inf 
+        if pos == -1 && ft == inf  %%Terminate dummy task
             T = finishtime(i,j,size(M,2)+1,t,B,M,cloud);
             if ft >= T && T<=B(i).req
                 ft = T;
@@ -709,7 +717,7 @@ function [B,M] = schedule1(i,j,t,B,M,cloud)
             B(i).nodes(j+1).statue=1;
             cloud.schedulelist = [cloud.schedulelist;i,j];
         end
-    else                 %%Terminate dummy task
+    else                 
         ft=finishtime(i,j,0,t,B,M);
         if ft <= B(i).req
             B(i).nodes(j+1).st=ft;
@@ -811,7 +819,7 @@ function B=resort1(B)
     end
 end
 
-function answer=rerank1(B,i,j) % Calculate task j's level
+function answer=rerank1(B,i,j)  % Calculate task i,j's level
     x=0;
     answer=-1;
     if j==(size(B(i).nodes,1)-1)
@@ -876,11 +884,11 @@ function [B,M,cloud]=cDCDS(i,B,M,cloud)
     while ~isempty(Q)
         i=Q(1,1);
         j=Q(1,2);
-        Q=Q(2:end,:);  %i and j are the current tasks. Check if the parents task is added to the cloud server.
+        Q=Q(2:end,:); %i and j are the current tasks. Check if the parents task is added to the cloud server.
         if j == size(B(i).nodes,1)-1 || j == 0
             return
         else
-            pre = findpre(B,i,j);    %%Check whether the parents node is scheduled to the cloud server
+            pre = findpre(B,i,j);   %%Check whether the parents node is scheduled to the cloud server
             for pre1=pre
                 est2 = est(i,pre1,B,M,cloud);    %%Start time of the parents node on the cloud server
                 trans = B(i).edges([B(i).edges.pre] == pre1 & [B(i).edges.suc] == j).trans;
@@ -986,7 +994,7 @@ function [B,M,cloud]=schedule2(i,j,B,M,cloud)
             [t,flag,st1,ft1] = EEST_LT(i,j,m,B,M);
             if flag ~= -1
                 flag1=1;
-               %Compare energy and assign a value to h
+                %Compare energy and assign a value to h
                 if c > transenergy1(i,j,m,B,M) + scheduleenergy1(i,j,m,B,M,cloud)
                     c = transenergy1(i,j,m,B,M) + scheduleenergy1(i,j,m,B,M,cloud);
                     h=m;
@@ -999,7 +1007,7 @@ function [B,M,cloud]=schedule2(i,j,B,M,cloud)
             tt = inf;
             for m=0:size(M,2)
                 [t,flag,st1,ft1] = EEST_LT(i,j,m,B,M);
-               %Select the one with the lowest energy
+                %Select the one with the lowest energy
                 if tt > t 
                     h = m;
                     st = st1;
@@ -1048,7 +1056,7 @@ function x=transenergy1(i,j,m,B,M)
                 x=x+0;
             end
             if (B(i).nodes(n+1).where == 0 || m == 0) && B(i).nodes(n+1).where ~= m %One is on the vehicle, the other is on the edge server
-                if B(i).nodes(n+1).where == 0   
+                if B(i).nodes(n+1).where == 0  
                     if m == size(M,2)+1 %Car to cloud server
                         x = x + B(i).edges(index).trans * (3 * 7.81 * 10^-9 + 10 * 80 * 10^-9);
                     else
@@ -1058,7 +1066,7 @@ function x=transenergy1(i,j,m,B,M)
                             x=x+B(i).edges(index).trans * 3 * 7.81 * 10^-9;
                         end
                     end
-                else   
+                else 
                     if B(i).nodes(n+1).where == size(M,2)+1 %Car to edge server
                         x = x + B(i).edges(index).trans * (3 * 7.81 * 10^-9 + 10 * 80 * 10^-9);
                     else
@@ -1071,9 +1079,9 @@ function x=transenergy1(i,j,m,B,M)
                 end
             end
             if B(i).nodes(n+1).where ~= 0 || m ~= 0 || B(i).nodes(n+1).where ~= m %Both are on edge servers
-                if B(i).nodes(n+1).where == size(M,2)+1 || m == size(M,2)+1   %Edge server to cloud server
+                if B(i).nodes(n+1).where == size(M,2)+1 || m == size(M,2)+1 %Edge server to cloud server
                     x=x+B(i).edges(index).trans * 10 * 80 * 10^-9;
-                else    %Edge server to edge server
+                else       %Edge server to edge server
                     x=x+B(i).edges(index).trans * 5 * 17.77 * 10^-9;
                 end
             end
@@ -1161,7 +1169,7 @@ function t=readytime(i,j,B)
     end
 end
 
-function B=resort2(B) %sort
+function B=resort2(B)  %sort
     for i = 1:size(B,2)
         for j = size(B(i).nodes,1)-1 : -1 : 0
             B(i).nodes(j+1).rank = round(rerank2(B,i,j),3);
